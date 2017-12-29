@@ -1,0 +1,10 @@
+contract:
+  name: My Contract
+  modules:
+    - sample
+    - sample/*
+  recursive: false
+  dependency_flow:
+    - foo
+    - bar [closed]
+    - baz
