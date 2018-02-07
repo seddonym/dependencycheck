@@ -7,6 +7,9 @@ TODO
 
 python -m dependencycheck
 
+Next:
+ - Get get_dependency_path working. Investigate whether better to use modulegraph.ModuleGraph to work out dependencies (getReferences?) or wrap a networkx graph instead.
+
 
 Create a directional graph.
 Work down the submodule order contract.
