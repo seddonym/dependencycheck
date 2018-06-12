@@ -14,8 +14,9 @@ class TestContractCheck:
                 'flowpackage',
             ),
             layers=(
-                Layer('upstream'),
-                Layer('downstream'),
+                Layer('one'),
+                Layer('two'),
+                Layer('three'),
             ),
         )
         dep_graph = mock.Mock()
@@ -23,8 +24,12 @@ class TestContractCheck:
 
         contract.check_dependencies(dep_graph)
 
-        dep_graph.find_path.assert_called_once_with(downstream='upstream',
-                                                    upstream='downstream')
+        # Check that each of the possible transgressive imports are checked
+        dep_graph.find_path.assert_has_calls((
+            mock.call(downstream='one', upstream='two'),
+            mock.call(downstream='one', upstream='three'),
+            mock.call(downstream='two', upstream='three'),
+        ))
 
     def test_simple_break_raises_contract_broken(self):
         contract = Contract(
@@ -33,17 +38,26 @@ class TestContractCheck:
                 'flowpackage',
             ),
             layers=(
-                Layer('upstream'),
-                Layer('downstream'),
+                Layer('one'),
+                Layer('two'),
+                Layer('three'),
             ),
         )
         dep_graph = mock.Mock()
-        dep_graph.find_path.return_value = [
-            'downstream',
+        # Mock that one imports two and three, and two imports three
+        dep_graph.find_path.side_effect = [
+            None,
+            ['one'],
+            ['one'],
+            ['two']
         ]
 
         with pytest.raises(ContractBroken):
             contract.check_dependencies(dep_graph)
 
-        dep_graph.find_path.assert_called_once_with(downstream='upstream',
-                                                    upstream='downstream')
+        # Check that each of the possible transgressive imports are checked
+        dep_graph.find_path.assert_has_calls((
+            mock.call(downstream='one', upstream='two'),
+            mock.call(downstream='one', upstream='three'),
+            mock.call(downstream='two', upstream='three'),
+        ))

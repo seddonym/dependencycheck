@@ -15,10 +15,21 @@ class Contract:
         self.recursive = recursive
 
     def check_dependencies(self, dependencies):
-        path = dependencies.find_path(upstream=self.layers[1].name,
-                                      downstream=self.layers[0].name)
-        if path:
+        illegal_dependencies = []
+
+        for upstream_layer in self.layers:
+            downstream_layers = self._get_layers_downstream_of(upstream_layer)
+            for downstream_layer in downstream_layers:
+                path = dependencies.find_path(
+                    upstream=downstream_layer.name,
+                    downstream=upstream_layer.name)
+                if path:
+                    illegal_dependencies.append(path)
+        if illegal_dependencies:
             raise ContractBroken
+
+    def _get_layers_downstream_of(self, layer):
+        return self.layers[self.layers.index(layer) + 1:]
 
 
 def get_contracts():
