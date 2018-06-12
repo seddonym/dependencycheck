@@ -1,6 +1,7 @@
-from unittest import mock
+from unittest import mock, skip
 import pytest
 from dependencycheck.contract import Contract, Layer, ContractBroken
+
 
 class TestGetContracts:
     pass
@@ -11,7 +12,7 @@ class TestContractCheck:
         contract = Contract(
             name='Foo contract',
             modules=(
-                'flowpackage',
+                'foo',
             ),
             layers=(
                 Layer('one'),
@@ -35,7 +36,7 @@ class TestContractCheck:
         contract = Contract(
             name='Foo contract',
             modules=(
-                'flowpackage',
+                'foo',
             ),
             layers=(
                 Layer('one'),
@@ -61,3 +62,11 @@ class TestContractCheck:
             mock.call(downstream='one', upstream='three'),
             mock.call(downstream='two', upstream='three'),
         ))
+
+    @skip
+    def test_closed_layer_pass(self):
+        assert False
+
+    @skip
+    def test_closed_layer_break(self):
+        assert False

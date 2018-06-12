@@ -1,3 +1,7 @@
+import yaml
+import os
+
+
 class ContractBroken(Exception):
     pass
 
@@ -32,5 +36,32 @@ class Contract:
         return self.layers[self.layers.index(layer) + 1:]
 
 
-def get_contracts():
-    return [Contract()]
+def contract_from_yaml(key, data):
+    layers = []
+    for layer_data in data['layers']:
+        layers.append(Layer(layer_data))
+
+    return Contract(
+        name=key,
+        modules=data['modules'],
+        layers=layers,
+    )
+
+
+def get_contracts(path):
+    """Given a path to a project, read in any contracts from a contract.yml file.
+    Args:
+        path (string): the path to the project root.
+    Returns:
+        A list of Contract instances.
+    """
+    contracts = []
+
+    file_path = os.path.join(path, 'contracts.yml')
+
+    with open(file_path, 'r') as file:
+        data_from_yaml = yaml.load(file)
+        for key, data in data_from_yaml.items():
+            contracts.append(contract_from_yaml(key, data))
+
+    return contracts

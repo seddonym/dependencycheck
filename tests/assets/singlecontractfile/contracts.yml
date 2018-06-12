@@ -1,0 +1,15 @@
+Contract One:
+  modules:
+    - foo
+    - bar
+  layers:
+    - one
+    - two
+
+Contract Two:
+  modules:
+    - baz/*
+  layers:
+    - one
+    - two
+    - three

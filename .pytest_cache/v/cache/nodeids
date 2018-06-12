@@ -1,4 +1,7 @@
 [
+  "tests/functional/test_get_contracts.py::test_get_contracts",
+  "tests/unit/test_contract.py::TestContractCheck::()::test_closed_layer_pass",
+  "tests/unit/test_contract.py::TestContractCheck::()::test_closed_layer_break",
   "tests/unit/test_contract.py::TestContractCheck::()::test_simple_adherence_does_not_raise_exception",
   "tests/unit/test_contract.py::TestContractCheck::()::test_simple_break_raises_contract_broken"
 ]
