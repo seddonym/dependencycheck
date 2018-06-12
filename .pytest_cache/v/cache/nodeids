@@ -1,1 +1,4 @@
-[]
+[
+  "tests/unit/test_contract.py::TestContractCheck::()::test_simple_adherence_does_not_raise_exception",
+  "tests/unit/test_contract.py::TestContractCheck::()::test_simple_break_raises_contract_broken"
+]

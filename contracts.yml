@@ -4,7 +4,7 @@ contract:
     - sample
     - sample/*
   recursive: false
-  dependency_flow:
+  layers:
     - foo
     - bar [closed]
     - baz
