@@ -3,10 +3,6 @@ import pytest
 from dependencycheck.contract import Contract, Layer, ContractBroken
 
 
-class TestGetContracts:
-    pass
-
-
 class TestContractCheck:
     def test_simple_adherence_does_not_raise_exception(self):
         contract = Contract(
