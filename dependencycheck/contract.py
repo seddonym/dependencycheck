@@ -5,3 +5,7 @@ class ContractBroken(Exception):
 class Contract:
     def check_dependencies(self, dependencies):
         pass
+
+
+def get_contracts():
+    return [Contract()]
