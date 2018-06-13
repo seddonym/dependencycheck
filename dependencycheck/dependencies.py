@@ -1,19 +1,38 @@
 from pydeps.py2depgraph import py2dep
+import networkx
+from networkx.algorithms import shortest_path
 
 
-def get_dependencies():
-    deps = py2dep('sample',
-                 verbose=0,
-                 show_cycles=False,
-                 show_raw_deps=False,
-                 noise_level=200,
-                 max_bacon=200,
-                 show_deps=False)
-    return []
+def get_dependencies(package_name):
+    return DependencyGraph(package_name)
 
 
 class DependencyGraph:
-    
+    def __init__(self, package_name):
+        self.package_name = package_name
+        sources = self._generate_pydep_sources()
+        self._build_networkx_graph_from_sources(sources)
+
+    def _generate_pydep_sources(self):
+        pydep_graph = py2dep(
+            self.package_name,
+            verbose=0,
+            show_cycles=False,
+            show_raw_deps=False,
+            noise_level=200,
+            max_bacon=200,
+            show_deps=False,
+        )
+        self._pydep_graph = pydep_graph
+        return pydep_graph.sources
+
+    def _build_networkx_graph_from_sources(self, sources):
+        self._networkx_graph = networkx.DiGraph()
+        for module_name, source in sources.items():
+            # self._networkx_graph.add_node(module_name)
+            for upstream_module in source.imports:
+                self._networkx_graph.add_edge(module_name, upstream_module)
+
     def find_path(self, downstream, upstream):
         """
         Args:
@@ -31,4 +50,9 @@ class DependencyGraph:
                 - ['gamma', 'beta', 'alpha'] will be returned if delta imports
                   gamma, which imports beta, which imports alpha.
         """
-        return None
+        try:
+            path = shortest_path(self._networkx_graph, downstream, upstream)
+        except networkx.NetworkXNoPath:
+            return None
+        else:
+            return tuple(path[1:])
