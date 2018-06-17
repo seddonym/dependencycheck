@@ -1,14 +1,20 @@
 import yaml
 import os
+import logging
 
 
-class ContractBroken(Exception):
-    pass
+logger = logging.getLogger(__name__)
 
 
 class Layer:
     def __init__(self, name):
         self.name = name
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return '<{}: {}>'.format(self.__class__.__name__, self)
 
 
 class Contract:
@@ -21,14 +27,23 @@ class Contract:
     def check_dependencies(self, dependencies):
         self.illegal_dependencies = []
 
-        for upstream_layer in self.layers:
-            downstream_layers = self._get_layers_downstream_of(upstream_layer)
-            for downstream_layer in downstream_layers:
-                path = dependencies.find_path(
-                    upstream=downstream_layer.name,
-                    downstream=upstream_layer.name)
-                if path:
-                    self.illegal_dependencies.append(path)
+        logger.debug('Checking dependencies for contract {}...'.format(self))
+
+        for module in self.modules:
+            logger.debug("Module '{}':".format(module))
+            for upstream_layer in self.layers:
+
+                upstream_module = "{}.{}".format(module, upstream_layer.name)
+
+                downstream_layers = self._get_layers_downstream_of(upstream_layer)
+                for downstream_layer in downstream_layers:
+                    downstream_module = "{}.{}".format(module, downstream_layer.name)
+                    path = dependencies.find_path(
+                        upstream=downstream_module,
+                        downstream=upstream_module)
+                    if path:
+                        logger.debug('Illegal dependency found: '.format(path))
+                        self.illegal_dependencies.append(path)
 
     @property
     def is_kept(self):
@@ -42,6 +57,12 @@ class Contract:
 
     def _get_layers_downstream_of(self, layer):
         return self.layers[self.layers.index(layer) + 1:]
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return '<{}: {}>'.format(self.__class__.__name__, self)
 
 
 def contract_from_yaml(key, data):

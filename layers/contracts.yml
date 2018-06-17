@@ -1,0 +1,19 @@
+#Three layers:
+#  modules:
+#    - layers
+#  layers:
+#    - data
+#    - domain
+#    - interfaces
+
+Rocky River:
+  modules:
+    - layers.accounts
+    - layers.complaints
+    - layers.support
+  layers:
+    - models
+    - domain
+    - forms
+    - views
+    - urls

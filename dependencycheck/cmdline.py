@@ -1,12 +1,21 @@
+import os
+import sys
+import logging
+
 from .dependencies import get_dependencies
-from .contract import get_contracts, ContractBroken
+from .contract import get_contracts
 from .report import Report
 
+logger = logging.getLogger('dependencycheck')
+root = logging.getLogger('pydeps')
+root.setLevel(logging.ERROR)
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 def main():
-    dependencies = get_dependencies()
+    dependencies = get_dependencies('layers')  # TODO get from cmd line
     report = Report()
-    for contract in get_contracts():
+    for contract in get_contracts(path=os.path.join(os.getcwd(), 'layers')):
         contract.check_dependencies(dependencies)
         report.add_contract(contract)
 

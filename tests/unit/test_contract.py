@@ -1,6 +1,6 @@
 from unittest import mock, skip
 import pytest
-from dependencycheck.contract import Contract, Layer, ContractBroken
+from dependencycheck.contract import Contract, Layer
 
 
 class TestContractCheck:
@@ -25,9 +25,9 @@ class TestContractCheck:
 
         # Check that each of the possible disallowed imports were checked
         dep_graph.find_path.assert_has_calls((
-            mock.call(downstream='one', upstream='two'),
-            mock.call(downstream='one', upstream='three'),
-            mock.call(downstream='two', upstream='three'),
+            mock.call(downstream='foo.one', upstream='foo.two'),
+            mock.call(downstream='foo.one', upstream='foo.three'),
+            mock.call(downstream='foo.two', upstream='foo.three'),
         ))
 
     def test_broken_contract(self):
@@ -46,9 +46,9 @@ class TestContractCheck:
         # Mock that one imports two and three, and two imports three
         dep_graph.find_path.side_effect = [
             None,
-            ['one'],
-            ['one'],
-            ['two']
+            ['foo.one', 'foo.two'],
+            ['foo.one', 'foo.three'],
+            ['foo.two', 'foo.three']
         ]
 
         contract.check_dependencies(dep_graph)
@@ -57,9 +57,9 @@ class TestContractCheck:
 
         # Check that each of the possible disallowed imports are checked
         dep_graph.find_path.assert_has_calls((
-            mock.call(downstream='one', upstream='two'),
-            mock.call(downstream='one', upstream='three'),
-            mock.call(downstream='two', upstream='three'),
+            mock.call(downstream='foo.one', upstream='foo.two'),
+            mock.call(downstream='foo.one', upstream='foo.three'),
+            mock.call(downstream='foo.two', upstream='foo.three'),
         ))
 
     def test_unchecked_contract_raises_exception(self):

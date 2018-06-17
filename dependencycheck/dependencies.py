@@ -1,6 +1,10 @@
+import logging
 from pydeps.py2depgraph import py2dep
 import networkx
 from networkx.algorithms import shortest_path
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_dependencies(package_name):
@@ -32,6 +36,7 @@ class DependencyGraph:
             # self._networkx_graph.add_node(module_name)
             for upstream_module in source.imports:
                 self._networkx_graph.add_edge(module_name, upstream_module)
+                logger.debug("Added edge from '{}' to '{}'.".format(module_name, upstream_module))
 
     def find_path(self, downstream, upstream):
         """
@@ -50,9 +55,11 @@ class DependencyGraph:
                 - ['gamma', 'beta', 'alpha'] will be returned if delta imports
                   gamma, which imports beta, which imports alpha.
         """
+        logger.debug("Finding path from '{}' up to '{}'.".format(downstream, upstream))
         try:
             path = shortest_path(self._networkx_graph, downstream, upstream)
-        except networkx.NetworkXNoPath:
+        except (networkx.NetworkXNoPath, networkx.exception.NodeNotFound):
+            # Either there is no path, or one of the modules doesn't even exist.
             return None
         else:
             return tuple(path)
