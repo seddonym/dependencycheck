@@ -17,7 +17,7 @@ def test_get_dependencies():
 
     assert dependencies.find_path(
         upstream=MODULE_ONE,
-        downstream=MODULE_TWO) == (MODULE_ONE,)
+        downstream=MODULE_TWO) == (MODULE_TWO, MODULE_ONE)
 
     assert dependencies.find_path(
         upstream=MODULE_TWO,
@@ -25,4 +25,5 @@ def test_get_dependencies():
 
     assert dependencies.find_path(
         upstream=MODULE_ONE,
-        downstream=MODULE_FOUR) == (MODULE_THREE, MODULE_TWO, MODULE_ONE)
+        downstream=MODULE_FOUR) == (MODULE_FOUR, MODULE_THREE,
+                                    MODULE_TWO, MODULE_ONE)

@@ -26,7 +26,7 @@ class TestDependencyGraph:
 
         path = graph.find_path(upstream='one', downstream='two')
 
-        assert path == ('one',)
+        assert path == ('two', 'one')
 
     def test_find_path_indirect(self):
         with patch.object(DependencyGraph, '_generate_pydep_sources',
@@ -35,7 +35,7 @@ class TestDependencyGraph:
 
         path = graph.find_path(upstream='one', downstream='four')
 
-        assert path == ('three', 'two', 'one',)
+        assert path == ('four', 'three', 'two', 'one',)
 
     def test_find_path_nonexistent(self):
         with patch.object(DependencyGraph, '_generate_pydep_sources',

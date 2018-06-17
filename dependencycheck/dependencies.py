@@ -55,4 +55,4 @@ class DependencyGraph:
         except networkx.NetworkXNoPath:
             return None
         else:
-            return tuple(path[1:])
+            return tuple(path)
