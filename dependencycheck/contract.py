@@ -19,7 +19,7 @@ class Contract:
         self.recursive = recursive
 
     def check_dependencies(self, dependencies):
-        illegal_dependencies = []
+        self.illegal_dependencies = []
 
         for upstream_layer in self.layers:
             downstream_layers = self._get_layers_downstream_of(upstream_layer)
@@ -28,9 +28,17 @@ class Contract:
                     upstream=downstream_layer.name,
                     downstream=upstream_layer.name)
                 if path:
-                    illegal_dependencies.append(path)
-        if illegal_dependencies:
-            raise ContractBroken
+                    self.illegal_dependencies.append(path)
+
+    @property
+    def is_kept(self):
+        try:
+            return len(self.illegal_dependencies) == 0
+        except AttributeError:
+            raise RuntimeError(
+                'Cannot check whether contract is kept '
+                'until check_dependencies is called.'
+            )
 
     def _get_layers_downstream_of(self, layer):
         return self.layers[self.layers.index(layer) + 1:]

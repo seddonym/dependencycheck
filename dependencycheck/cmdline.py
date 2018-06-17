@@ -1,22 +1,18 @@
 from .dependencies import get_dependencies
 from .contract import get_contracts, ContractBroken
-from .reporter import Reporter
+from .report import Report
 
 
 def main():
     dependencies = get_dependencies()
-    reporter = Reporter()
+    report = Report()
     for contract in get_contracts():
-        try:
-            contract.check_dependencies(dependencies)
-        except ContractBroken as e:
-            reporter.store_broken_contract(contract, e)
-        else:
-            reporter.store_successful_contract(contract)
+        contract.check_dependencies(dependencies)
+        report.add_contract(contract)
 
-    reporter.output_report()
+    report.output()
 
-    if reporter.has_broken_contracts:
+    if report.has_broken_contracts:
         return 1  # Fail
     else:
         return 0  # Pass

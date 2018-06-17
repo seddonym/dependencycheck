@@ -4,7 +4,7 @@ from dependencycheck.contract import Contract, Layer, ContractBroken
 
 
 class TestContractCheck:
-    def test_simple_adherence_does_not_raise_exception(self):
+    def test_kept_contract(self):
         contract = Contract(
             name='Foo contract',
             modules=(
@@ -21,14 +21,16 @@ class TestContractCheck:
 
         contract.check_dependencies(dep_graph)
 
-        # Check that each of the possible transgressive imports are checked
+        assert contract.is_kept is True
+
+        # Check that each of the possible disallowed imports were checked
         dep_graph.find_path.assert_has_calls((
             mock.call(downstream='one', upstream='two'),
             mock.call(downstream='one', upstream='three'),
             mock.call(downstream='two', upstream='three'),
         ))
 
-    def test_simple_break_raises_contract_broken(self):
+    def test_broken_contract(self):
         contract = Contract(
             name='Foo contract',
             modules=(
@@ -49,20 +51,31 @@ class TestContractCheck:
             ['two']
         ]
 
-        with pytest.raises(ContractBroken):
-            contract.check_dependencies(dep_graph)
+        contract.check_dependencies(dep_graph)
 
-        # Check that each of the possible transgressive imports are checked
+        assert contract.is_kept is False
+
+        # Check that each of the possible disallowed imports are checked
         dep_graph.find_path.assert_has_calls((
             mock.call(downstream='one', upstream='two'),
             mock.call(downstream='one', upstream='three'),
             mock.call(downstream='two', upstream='three'),
         ))
 
-    @skip
-    def test_closed_layer_pass(self):
-        assert False
+    def test_unchecked_contract_raises_exception(self):
+        contract = Contract(
+            name='Foo contract',
+            modules=(
+                'foo',
+            ),
+            layers=(
+                Layer('one'),
+                Layer('two'),
+                Layer('three'),
+            ),
+        )
 
-    @skip
-    def test_closed_layer_break(self):
-        assert False
+        with pytest.raises(RuntimeError) as excinfo:
+            contract.is_kept
+        assert 'Cannot check whether contract is ' \
+            'kept until check_dependencies is called.' in str(excinfo.value)
