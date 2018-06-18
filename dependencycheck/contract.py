@@ -18,9 +18,9 @@ class Layer:
 
 
 class Contract:
-    def __init__(self, name, modules, layers, recursive=False):
+    def __init__(self, name, packages, layers, recursive=False):
         self.name = name
-        self.modules = modules
+        self.packages = packages
         self.layers = layers
         self.recursive = recursive
 
@@ -29,21 +29,54 @@ class Contract:
 
         logger.debug('Checking dependencies for contract {}...'.format(self))
 
-        for module in self.modules:
-            logger.debug("Module '{}':".format(module))
-            for upstream_layer in self.layers:
+        for package in self.packages:
+            for layer in self.layers:
+                self._check_layer_does_not_import_downstream(layer, package, dependencies)
 
-                upstream_module = "{}.{}".format(module, upstream_layer.name)
+    def _check_layer_does_not_import_downstream(self, layer, package, dependencies):
 
-                downstream_layers = self._get_layers_downstream_of(upstream_layer)
-                for downstream_layer in downstream_layers:
-                    downstream_module = "{}.{}".format(module, downstream_layer.name)
-                    path = dependencies.find_path(
-                        upstream=downstream_module,
-                        downstream=upstream_module)
-                    if path:
-                        logger.debug('Illegal dependency found: '.format(path))
-                        self.illegal_dependencies.append(path)
+        logger.debug("Layer '{}' in package '{}'.".format(layer, package))
+
+        modules_in_this_layer = self._get_modules_in_layer(layer, package, dependencies)
+        modules_in_downstream_layers = self._get_modules_in_downstream_layers(
+            layer, package, dependencies)
+        logger.debug('Modules in this layer: {}'.format(modules_in_this_layer))
+        logger.debug('Modules in downstream layer: {}'.format(modules_in_downstream_layers))
+
+        for upstream_module in modules_in_this_layer:
+            for downstream_module in modules_in_downstream_layers:
+
+                path = dependencies.find_path(
+                    upstream=downstream_module,
+                    downstream=upstream_module)
+                if path:
+                    logger.debug('Illegal dependency found: '.format(path))
+                    self.illegal_dependencies.append(path)
+
+    def _get_modules_in_layer(self, layer, package, dependencies):
+        """
+        Args:
+            layer: The Layer object.
+            package: absolute name of the package containing the layer (string).
+            dependencies: the DependencyGraph object.
+        Returns:
+            List of modules names within that layer, including the layer module itself.
+            Includes grandchildren and deeper.
+        """
+        layer_module = "{}.{}".format(package, layer.name)
+        modules = [layer_module]
+        modules.extend(
+            dependencies.get_children(layer_module)
+        )
+        return modules
+
+    def _get_modules_in_downstream_layers(self, layer, package, dependencies):
+        modules = []
+        for downstream_layer in self._get_layers_downstream_of(layer):
+            modules.extend(
+                self._get_modules_in_layer(downstream_layer, package, dependencies)
+            )
+        return modules
 
     @property
     def is_kept(self):
@@ -72,7 +105,7 @@ def contract_from_yaml(key, data):
 
     return Contract(
         name=key,
-        modules=data['modules'],
+        packages=data['packages'],
         layers=layers,
     )
 

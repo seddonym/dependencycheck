@@ -25,3 +25,4 @@ TODO:
  - Then, only report the breakage once.
  - Make the layers style contract work. It should check that nothing within the
 each layer imports from a layer above.
+- Consider renaming to layers.yml. Then talk about packages, and the layers within them.

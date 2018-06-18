@@ -52,7 +52,7 @@ class DependencyGraph:
             module 'delta':
 
                 - ['alpha'] will be returned if delta directly imports alpha.
-                - ['gamma', 'beta', 'alpha'] will be returned if delta imports
+                - ['delta', 'gamma', 'beta', 'alpha'] will be returned if delta imports
                   gamma, which imports beta, which imports alpha.
         """
         logger.debug("Finding path from '{}' up to '{}'.".format(downstream, upstream))

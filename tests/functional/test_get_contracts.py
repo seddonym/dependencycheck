@@ -12,12 +12,12 @@ def test_get_contracts():
     expected_contracts = [
         {
             'name': 'Contract One',
-            'modules': ['foo', 'bar'],
+            'packages': ['foo', 'bar'],
             'layers': ['one', 'two'],
         },
         {
             'name': 'Contract Two',
-            'modules': ['baz/*'],
+            'packages': ['baz/*'],
             'layers': ['one', 'two', 'three'],
         },
     ]
@@ -25,9 +25,9 @@ def test_get_contracts():
         expected_data = expected_contracts[contract_index]
         assert contract.name == expected_data['name']
 
-        for module_index, module in enumerate(contract.modules):
-            expected_module_data = expected_data['modules'][module_index]
-            assert module == expected_module_data
+        for package_index, package in enumerate(contract.packages):
+            expected_package_data = expected_data['packages'][package_index]
+            assert package == expected_package_data
 
         for layer_index, layer in enumerate(contract.layers):
             expected_layer_data = expected_data['layers'][layer_index]

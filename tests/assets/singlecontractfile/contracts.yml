@@ -1,5 +1,5 @@
 Contract One:
-  modules:
+  packages:
     - foo
     - bar
   layers:
@@ -7,7 +7,7 @@ Contract One:
     - two
 
 Contract Two:
-  modules:
+  packages:
     - baz/*
   layers:
     - one

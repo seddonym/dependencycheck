@@ -7,7 +7,7 @@
 #    - interfaces
 
 Rocky River:
-  modules:
+  packages:
     - layers.accounts
     - layers.complaints
     - layers.support

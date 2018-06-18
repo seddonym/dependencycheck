@@ -7,9 +7,7 @@ from .contract import get_contracts
 from .report import Report
 
 logger = logging.getLogger('dependencycheck')
-root = logging.getLogger('pydeps')
-root.setLevel(logging.ERROR)
-
+logging.getLogger('pydeps').setLevel(logging.ERROR)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 def main():
