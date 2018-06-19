@@ -126,3 +126,34 @@ class TestContractCheck:
             mock.call(downstream='foo.one.alpha.green', upstream='foo.two'),
             mock.call(downstream='foo.one.beta', upstream='foo.two'),
         ))
+
+    def test_broken_contract_via_other_layer(self):
+        # If an illegal import happens via another layer, we don't want to report it
+        # (as it will already be reported).
+
+        contract = Contract(
+            name='Foo contract',
+            packages=(
+                'foo',
+            ),
+            layers=(
+                Layer('one'),
+                Layer('two'),
+                Layer('three'),
+            ),
+        )
+        dep_graph = mock.Mock()
+        dep_graph.get_descendants.return_value = []
+        # Mock that one imports two, and two imports three
+        dep_graph.find_path.side_effect = [
+            ['foo.one', 'foo.two'],
+            ['foo.one', 'foo.two', 'foo.three'],
+            ['foo.two', 'foo.three'],
+        ]
+
+        contract.check_dependencies(dep_graph)
+
+        assert contract.illegal_dependencies == [
+            ['foo.one', 'foo.two'],
+            ['foo.two', 'foo.three'],
+        ]

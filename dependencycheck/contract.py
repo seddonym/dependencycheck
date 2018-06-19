@@ -1,6 +1,7 @@
 import yaml
 import os
 import logging
+from copy import copy
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ class Contract:
                 path = dependencies.find_path(
                     upstream=downstream_module,
                     downstream=upstream_module)
-                if path:
+                if path and not self._path_is_via_another_layer(path, layer, package):
                     logger.debug('Illegal dependency found: {}'.format(path))
                     self.illegal_dependencies.append(path)
 
@@ -77,6 +78,15 @@ class Contract:
                 ["{}.{}".format(package, downstream_layer.name)]
             )
         return modules
+
+    def _path_is_via_another_layer(self, path, current_layer, package):
+        other_layers = list(copy(self.layers))
+        other_layers.remove(current_layer)
+
+        layer_modules = ['{}.{}'.format(package, layer.name) for layer in other_layers]
+        modules_via = path[1:-1]
+
+        return any(path_module in layer_modules for path_module in modules_via)
 
     @property
     def is_kept(self):
