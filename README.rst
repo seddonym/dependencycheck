@@ -19,11 +19,7 @@ For each submodule:
 Report shortest steps (define this more clearly)
 
 TODO:
- - Make the rocky river style contract work. It should go through
- each module listed in the contract and look at the submodules as layers.
-- Handle networkx.exception.NodeNotFound gracefully.
- - Then, only report the breakage once.
- - Make the layers style contract work. It should check that nothing within the
-each layer imports from a layer above.
 - Consider renaming to layers.yml. Then talk about packages, and the layers within them.
 - Consider having upstream layers at bottom of yml.
+- support foo.* format for packages
+-

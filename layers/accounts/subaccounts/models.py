@@ -1,0 +1,2 @@
+class MyModel:
+    pass
