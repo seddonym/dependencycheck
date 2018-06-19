@@ -45,12 +45,11 @@ class Contract:
 
         for upstream_module in modules_in_this_layer:
             for downstream_module in modules_in_downstream_layers:
-
                 path = dependencies.find_path(
                     upstream=downstream_module,
                     downstream=upstream_module)
                 if path:
-                    logger.debug('Illegal dependency found: '.format(path))
+                    logger.debug('Illegal dependency found: {}'.format(path))
                     self.illegal_dependencies.append(path)
 
     def _get_modules_in_layer(self, layer, package, dependencies):
@@ -66,7 +65,7 @@ class Contract:
         layer_module = "{}.{}".format(package, layer.name)
         modules = [layer_module]
         modules.extend(
-            dependencies.get_children(layer_module)
+            dependencies.get_descendants(layer_module)
         )
         return modules
 
@@ -74,7 +73,8 @@ class Contract:
         modules = []
         for downstream_layer in self._get_layers_downstream_of(layer):
             modules.extend(
-                self._get_modules_in_layer(downstream_layer, package, dependencies)
+                # self._get_modules_in_layer(downstream_layer, package, dependencies)
+                ["{}.{}".format(package, downstream_layer.name)]
             )
         return modules
 

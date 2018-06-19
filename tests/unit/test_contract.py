@@ -23,7 +23,7 @@ class TestContractCheck:
         )
         dep_graph = mock.Mock()
         dep_graph.find_path.return_value = None
-        dep_graph.get_children.return_value = []
+        dep_graph.get_descendants.return_value = []
 
         contract.check_dependencies(dep_graph)
 
@@ -49,7 +49,7 @@ class TestContractCheck:
             ),
         )
         dep_graph = mock.Mock()
-        dep_graph.get_children.return_value = []
+        dep_graph.get_descendants.return_value = []
         # Mock that one imports two and three, and two imports three
         dep_graph.find_path.side_effect = [
             None,
@@ -100,18 +100,18 @@ class TestContractCheck:
         )
         dep_graph = mock.Mock()
         # Mock some deeper submodules
-        dep_graph.get_children.side_effect = [
-            ['foo.one.alpha', 'foo.one.alpha.red', 'foo.one.alpha.green', 'foo.one.beta'],
+        dep_graph.get_descendants.side_effect = [
             # For foo.one
-            ['foo.two.gamma'],  # For foo.two
-            ['foo.two.gamma'],  # For foo.two (second call)
+            ['foo.one.alpha', 'foo.one.alpha.red', 'foo.one.alpha.green', 'foo.one.beta'],
+            # For foo.two
+            [],
         ]
 
-        # Mock that foo.one.alpha.red imports foo.two.gamma
+        # Mock that foo.one.alpha.red imports foo.two
         dep_graph.find_path.side_effect = [
-            None, None, None, None, None,
-            ['foo.one.alpha.red', 'foo.two.gamma'],
-            None, None, None, None
+            None, None,
+            ['foo.one.alpha.red', 'foo.two'],
+            None, None
         ]
 
         contract.check_dependencies(dep_graph)
@@ -121,13 +121,8 @@ class TestContractCheck:
         # Check that each of the possible disallowed imports are checked
         dep_graph.find_path.assert_has_calls((
             mock.call(downstream='foo.one', upstream='foo.two'),
-            mock.call(downstream='foo.one', upstream='foo.two.gamma'),
             mock.call(downstream='foo.one.alpha', upstream='foo.two'),
-            mock.call(downstream='foo.one.alpha', upstream='foo.two.gamma'),
             mock.call(downstream='foo.one.alpha.red', upstream='foo.two'),
-            mock.call(downstream='foo.one.alpha.red', upstream='foo.two.gamma'),
             mock.call(downstream='foo.one.alpha.green', upstream='foo.two'),
-            mock.call(downstream='foo.one.alpha.green', upstream='foo.two.gamma'),
             mock.call(downstream='foo.one.beta', upstream='foo.two'),
-            mock.call(downstream='foo.one.beta', upstream='foo.two.gamma'),
         ))

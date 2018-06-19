@@ -1,10 +1,10 @@
-#Three layers:
-#  modules:
-#    - layers
-#  layers:
-#    - data
-#    - domain
-#    - interfaces
+Three layers:
+  packages:
+    - layers
+  layers:
+    - data
+    - domain
+    - interfaces
 
 Rocky River:
   packages:

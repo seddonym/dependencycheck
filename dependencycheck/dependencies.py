@@ -33,7 +33,6 @@ class DependencyGraph:
     def _build_networkx_graph_from_sources(self, sources):
         self._networkx_graph = networkx.DiGraph()
         for module_name, source in sources.items():
-            # self._networkx_graph.add_node(module_name)
             for upstream_module in source.imports:
                 self._networkx_graph.add_edge(module_name, upstream_module)
                 logger.debug("Added edge from '{}' to '{}'.".format(module_name, upstream_module))
@@ -63,3 +62,16 @@ class DependencyGraph:
             return None
         else:
             return tuple(path)
+
+    def get_descendants(self, module):
+        """
+        Args:
+            module (string): absolute name of module.
+        Returns:
+            List of modules that are within that module (string).
+        """
+        descendants = []
+        for candidate in self._pydep_graph.sources.keys():
+            if candidate.startswith('{}.'.format(module)):
+                descendants.append(candidate)
+        return descendants

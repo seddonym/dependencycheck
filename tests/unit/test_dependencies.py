@@ -45,3 +45,55 @@ class TestDependencyGraph:
         path = graph.find_path(upstream='four', downstream='one')
 
         assert path is None
+
+    def test_get_descendants_nested(self):
+        sources = {
+            'foo.one': Mock(
+                imports=[],
+            ),
+            'foo.one.alpha': Mock(
+                imports=[],
+            ),
+            'foo.one.beta': Mock(
+                imports=[],
+            ),
+            'foo.one.beta.green': Mock(
+                imports=[],
+            ),
+            'foo.two': Mock(
+                imports=['foo.one'],
+            ),
+        }
+        with patch.object(DependencyGraph, '_generate_pydep_sources'):
+            graph = DependencyGraph('foo')
+            graph._pydep_graph = Mock(sources=sources)
+
+        assert graph.get_descendants('foo.one') == [
+            'foo.one.alpha',
+            'foo.one.beta',
+            'foo.one.beta.green',
+        ]
+
+    def test_get_descendants_none(self):
+        sources = {
+            'foo.one': Mock(
+                imports=[],
+            ),
+            'foo.one.alpha': Mock(
+                imports=[],
+            ),
+            'foo.one.beta': Mock(
+                imports=[],
+            ),
+            'foo.one.beta.green': Mock(
+                imports=[],
+            ),
+            'foo.two': Mock(
+                imports=['foo.one'],
+            ),
+        }
+        with patch.object(DependencyGraph, '_generate_pydep_sources'):
+            graph = DependencyGraph('foo')
+            graph._pydep_graph = Mock(sources=sources)
+
+        assert graph.get_descendants('foo.two') == []
